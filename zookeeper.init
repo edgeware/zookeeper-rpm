@@ -8,33 +8,35 @@
 # Source function library.
 . /etc/rc.d/init.d/functions
 
-daemon_user=zookeeper
-daemon_home=$(getent passwd $daemon_user | cut -d: -f6)
+PROG=zookeeper
+LOCKFILE="/var/lock/subsys/$PROG"
 
-export ZOOCFGDIR=/etc/zookeeper
+# override variables listed down below in /etc/sysconfig/kafka
+[ -e /etc/sysconfig/$PROG ] && . /etc/sysconfig/$PROG
 
-prog="zookeeper"
-desc="ZooKeeper daemon"
+ZOOKEEPER_USER=${ZOOKEEPER_USER:-zookeeper}
+ZOOKEEPER_HOME=${ZOOKEEPER_HOME:-$(getent passwd $ZOOKEEPER_USER | cut -d: -f6)}
+
+export ZOOCFGDIR=${ZOOKEEPER_CONFIG_DIR:-/etc/zookeeper}
+
 retval=0
-lockfile="/var/lock/subsys/$prog"
-
 
 start() {
-  echo -n $"Starting $desc: "
-  daemon --user ${daemon_user} ${daemon_home}/bin/zkServer.sh start
+  echo -n $"Starting $PROG: "
+  daemon --user $ZOOKEEPER_USER $ZOOKEEPER_HOME/bin/zkServer.sh start
   retval=$?
   echo
-  [ $retval -eq 0 ] && touch $lockfile
+  [ $retval -eq 0 ] && touch $LOCKFILE
   return $retval
 }
 
 stop() {
-  echo -n $"Stopping $desc: "
-  daemon --user ${daemon_user} ${daemon_home}/bin/zkServer.sh stop
+  echo -n $"Stopping $PROG: "
+  daemon --user $ZOOKEEPER_USER $ZOOKEEPER_HOME/bin/zkServer.sh stop
   retval=$?
   sleep 5
   echo
-  [ $retval -eq 0 ] && rm -f $lockfile
+  [ $retval -eq 0 ] && rm -f $LOCKFILE
 }
 
 restart() {
@@ -43,12 +45,12 @@ restart() {
 }
 
 checkstatus(){
-  ${daemon_home}/bin/zkServer.sh status
+  $ZOOKEEPER_HOME/bin/zkServer.sh status
   retval=$?
 }
 
 condrestart(){
-  [ -e $lockfile ] && restart || :
+  [ -e $LOCKFILE ] && restart || :
 }
 
 case "$1" in

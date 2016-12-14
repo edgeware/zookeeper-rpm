@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# override variables listed down below in /etc/sysconfig/kafka
+[ -e /etc/sysconfig/zookeeper ] && . /etc/sysconfig/zookeeper
+
+ZOOKEEPER_USER=${ZOOKEEPER_USER:-zookeeper}
+ZOOKEEPER_HOME=${ZOOKEEPER_HOME:-$(getent passwd $ZOOKEEPER_USER | cut -d: -f6)}
+exec "$ZOOKEEPER_HOME/bin/zkCli.sh" "$@"

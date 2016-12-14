@@ -18,6 +18,7 @@ Source2: zookeeper.logrotate
 Source3: zoo.cfg
 Source4: log4j.properties
 Source5: java.env
+Source6: zkCli
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prefix: %{_prefix}
 Prefix: %{_conf_dir}
@@ -40,6 +41,7 @@ mkdir -p $RPM_BUILD_ROOT%{_prefix}/zookeeper
 mkdir $RPM_BUILD_ROOT%{_prefix}/zookeeper/bin
 mkdir $RPM_BUILD_ROOT%{_prefix}/zookeeper/data
 mkdir -p $RPM_BUILD_ROOT%{_log_dir}
+mkdir -p $RPM_BUILD_ROOT/usr/bin
 cp -a bin/*.sh $RPM_BUILD_ROOT%{_prefix}/zookeeper/bin/
 cp -a lib $RPM_BUILD_ROOT%{_prefix}/zookeeper/
 install -p -D -m 644 zookeeper-%{version}.jar $RPM_BUILD_ROOT%{_prefix}/zookeeper/zookeeper-%{version}.jar
@@ -48,6 +50,7 @@ install -p -D -m 644 %{S:2} $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/zookeeper
 install -p -D -m 644 %{S:3} $RPM_BUILD_ROOT%{_conf_dir}/zoo.cfg
 install -p -D -m 644 %{S:4} $RPM_BUILD_ROOT%{_conf_dir}/log4j.properties
 install -p -D -m 644 %{S:5} $RPM_BUILD_ROOT%{_conf_dir}/java.env
+install -p -D -m 755 %{S:6} $RPM_BUILD_ROOT/usr/bin/zkCli
 install -p -D -m 644 conf/configuration.xsl $RPM_BUILD_ROOT%{_conf_dir}/configuration.xsl
 
 %clean
@@ -82,10 +85,10 @@ fi
 
 %files
 %defattr(-,root,root)
+/usr/bin/zkCli
 %attr(0775,root,zookeeper) %{_initddir}/zookeeper
 %config(noreplace) %{_sysconfdir}/logrotate.d/zookeeper
 %config(noreplace) %{_conf_dir}/*
 %{_prefix}
 %attr(0700,zookeeper,zookeeper) %dir %{_log_dir}
 %attr(0700,zookeeper,zookeeper) %dir %{_prefix}/zookeeper/data
-
